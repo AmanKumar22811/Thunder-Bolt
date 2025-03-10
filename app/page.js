@@ -1,10 +1,5 @@
-import { Button } from "@/components/ui/button";
+import Hero from "@/components/Hero";
 
 export default function Home() {
-  return (
-    <div className="text-5xl text-blue-400">
-      hello
-      <Button>Click Me </Button>
-    </div>
-  );
+  return <Hero />;
 }
