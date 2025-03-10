@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useContext } from "react";
 import {
   Dialog,
@@ -17,17 +18,36 @@ const SignInDialog = ({ openDialog, closeDialog }) => {
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      console.log(tokenResponse);
-      const userInfo = await axios.get(
-        "https://www.googleapis.com/oauth2/v3/userinfo",
-        { headers: { Authorization: `Bearer ${tokenResponse?.access_token}` } }
-      );
+      try {
+        // Get user details from Google API
+        const { data: userInfo } = await axios.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: { Authorization: `Bearer ${tokenResponse?.access_token}` },
+          }
+        );
 
-      console.log(userInfo);
-      setUserDetail(userInfo?.data);
-      closeDialog(false);
+        console.log("Google User Info:", userInfo);
+
+        // Send user data to backend for storing in MongoDB
+        const { data } = await axios.post("/api/auth/google", {
+          googleId: userInfo.sub,
+          name: userInfo.name,
+          email: userInfo.email,
+          picture: userInfo.picture,
+        });
+
+        console.log("Stored in MongoDB:", data);
+
+        // Update context with user details
+        setUserDetail(userInfo);
+        closeDialog(false);
+      } catch (error) {
+        console.error("Google Auth Error:", error);
+      }
     },
-    onError: (errorResponse) => console.log(errorResponse),
+    onError: (errorResponse) =>
+      console.log("Google Auth Failed:", errorResponse),
   });
 
   return (
