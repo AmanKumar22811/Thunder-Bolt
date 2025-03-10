@@ -27,7 +27,7 @@ const Hero = () => {
       <p className="text-gray-400 font-medium ">
         Prompt,run,edit,and deploy full-stack web apps
       </p>
-      <div className="p-5 border rounded-xl max-w-2xl w-full mt-3 ">
+      <div className="p-5 border rounded-xl max-w-2xl w-full mt-3 border-l-cyan-400 border-t-cyan-400">
         <div className="flex gap-2">
           <textarea
             onChange={(e) => setUserInput(e.target.value)}
