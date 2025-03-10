@@ -1,7 +1,9 @@
 "use client";
 import { MessagesContext } from "@/context/MessagesContext";
+import { UserDetailContext } from "@/context/UserDetailContext";
 import { ArrowRight, Link } from "lucide-react";
 import React, { useContext, useState } from "react";
+import SignInDialog from "./SignInDialog";
 
 const Hero = () => {
   const suggesstions = [
@@ -12,10 +14,18 @@ const Hero = () => {
     "Create Login Signup Screen",
   ];
 
-  const [userInput, setUserInput] = useState();
   const { messages, setMessages } = useContext(MessagesContext);
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+
+  const [userInput, setUserInput] = useState();
+  const [openDialog, setOpenDialog] = useState(false);
 
   const onGenerate = (input) => {
+    if (!userDetail?.name) {
+      setOpenDialog(true);
+      return;
+    }
+
     setMessages({
       role: "user",
       content: input,
@@ -58,6 +68,11 @@ const Hero = () => {
           ))}
         </div>
       </div>
+
+      <SignInDialog
+        openDialog={openDialog}
+        closeDialog={(v) => setOpenDialog(v)}
+      />
     </div>
   );
 };
