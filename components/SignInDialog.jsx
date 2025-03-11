@@ -1,6 +1,9 @@
 "use client";
-
 import React, { useContext } from "react";
+import { useRouter } from "next/navigation";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
+import { UserDetailContext } from "@/context/UserDetailContext";
 import {
   Dialog,
   DialogContent,
@@ -9,45 +12,42 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
-import { useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
-import { UserDetailContext } from "@/context/UserDetailContext";
 
 const SignInDialog = ({ openDialog, closeDialog }) => {
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const { setUserDetail } = useContext(UserDetailContext);
+  const router = useRouter();
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        // Get user details from Google API
-        const { data: userInfo } = await axios.get(
+        // Fetch user info from Google
+        const { data: googleUser } = await axios.get(
           "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: { Authorization: `Bearer ${tokenResponse?.access_token}` },
-          }
+          { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
         );
 
-        console.log("Google User Info:", userInfo);
-
-        // Send user data to backend for storing in MongoDB
+        // Send user details to backend for authentication
         const { data } = await axios.post("/api/auth/google", {
-          googleId: userInfo.sub,
-          name: userInfo.name,
-          email: userInfo.email,
-          picture: userInfo.picture,
+          googleId: googleUser.sub,
+          name: googleUser.name,
+          email: googleUser.email,
+          picture: googleUser.picture,
         });
 
-        console.log("Stored in MongoDB:", data);
+        // Store user details in localStorage and update context
+        localStorage.setItem("userDetail", JSON.stringify(data.user));
+        setUserDetail(data.user);
 
-        // Update context with user details
-        setUserDetail(userInfo);
-        closeDialog(false);
+        closeDialog(false); // Close the dialog after successful login
+
+        // Redirect user to workspace
+        router.push(`/workspace/${data.user._id}`);
       } catch (error) {
-        console.error("Google Auth Error:", error);
+        console.error("Google login error:", error);
       }
     },
     onError: (errorResponse) =>
-      console.log("Google Auth Failed:", errorResponse),
+      console.log("Google auth error:", errorResponse),
   });
 
   return (
