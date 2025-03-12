@@ -29,10 +29,10 @@ export const saveAssistantResponse = async (userId, response) => {
   return chat;
 };
 
-export const getChatHistory = async (userId) => {
-  await connectDB();
+// export const getChatHistory = async (userId) => {
+//   await connectDB();
 
-  const chat = await Chat.findOne({ userId }).populate("userId");
+//   const chat = await Chat.findOne({ userId }).populate("userId");
 
-  return chat ? chat.messages : [];
-};
+//   return chat ? chat.messages : [];
+// };
