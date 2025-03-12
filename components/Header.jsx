@@ -1,18 +1,10 @@
 import { Zap } from "lucide-react";
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { Button } from "./ui/button";
 import { UserDetailContext } from "@/context/UserDetailContext";
 
 const Header = () => {
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
-
-  // Effect to load user details from localStorage when component mounts
-  useEffect(() => {
-    const storedUser = localStorage.getItem("userDetail");
-    if (storedUser) {
-      setUserDetail(JSON.parse(storedUser));
-    }
-  }, [setUserDetail]);
+  const { userDetail } = useContext(UserDetailContext);
 
   return (
     <div className="p-4 flex justify-between items-center bg-gradient-to-r from-black from-[20%] via-[#5e98c7] via-[50%] to-black to-[80%]">

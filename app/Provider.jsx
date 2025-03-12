@@ -8,28 +8,33 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const Provider = ({ children }) => {
   const [messages, setMessages] = useState([]);
+  const [userDetail, setUserDetailState] = useState(null);
 
-  // Initialize userDetail with localStorage data
-  const [userDetail, setUserDetailState] = useState(() => {
+  // Load user details from localStorage only on mount
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const storedUser = localStorage.getItem("userDetail");
-      return storedUser ? JSON.parse(storedUser) : null;
+      if (storedUser) {
+        setUserDetailState(JSON.parse(storedUser));
+      }
     }
-    return null;
-  });
+  }, []); // ✅ Runs once on mount
 
-  // Sync localStorage with state whenever userDetail changes
+  // Sync localStorage with userDetail ONLY when it actually changes
   useEffect(() => {
     if (userDetail) {
-      localStorage.setItem("userDetail", JSON.stringify(userDetail));
-    } else {
-      localStorage.removeItem("userDetail");
+      const storedUser = localStorage.getItem("userDetail");
+      if (storedUser !== JSON.stringify(userDetail)) {
+        localStorage.setItem("userDetail", JSON.stringify(userDetail));
+      }
     }
-  }, [userDetail]);
+  }, [userDetail]); // ✅ Prevents unnecessary updates
 
-  // Function to update user details
+  // Function to update user details safely
   const setUserDetail = (user) => {
-    setUserDetailState(user);
+    setUserDetailState((prev) =>
+      JSON.stringify(prev) !== JSON.stringify(user) ? user : prev
+    );
   };
 
   return (
